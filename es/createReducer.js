@@ -305,10 +305,9 @@ function createReducer(structure) {
       payload = _ref13.payload
 
     var result = state
-    var initial = getIn(result, 'initial.' + field)
-    if (initial === undefined && payload === '') {
+    if (payload === '' || payload === undefined) {
       result = deleteInWithCleanUp(result, 'values.' + field)
-    } else if (payload !== undefined) {
+    } else {
       result = setIn(result, 'values.' + field, payload)
     }
     if (field === getIn(result, 'active')) {
@@ -329,7 +328,6 @@ function createReducer(structure) {
       payload = _ref14.payload
 
     var result = state
-    var initial = getIn(result, 'initial.' + field)
     if (payload === '' || payload === undefined) {
       result = deleteInWithCleanUp(result, 'values.' + field)
     } else {
