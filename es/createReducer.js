@@ -66,17 +66,7 @@ import plain from './structure/plain'
 var shouldDelete = function shouldDelete(_ref) {
   var getIn = _ref.getIn
   return function(state, path) {
-    var initialValuesPath = null
-
-    if (/^values/.test(path)) {
-      initialValuesPath = path.replace('values', 'initial')
-    }
-
-    var initialValueComparison = initialValuesPath
-      ? getIn(state, initialValuesPath) === undefined
-      : true
-
-    return getIn(state, path) !== undefined && initialValueComparison
+    return true
   }
 }
 
