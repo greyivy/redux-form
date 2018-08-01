@@ -41,19 +41,7 @@ import createDeleteInWithCleanUp from './deleteInWithCleanUp'
 import plain from './structure/plain'
 import type { Action, Structure } from './types.js.flow'
 
-const shouldDelete = ({ getIn }) => (state, path) => {
-  let initialValuesPath = null
-
-  if (/^values/.test(path)) {
-    initialValuesPath = path.replace('values', 'initial')
-  }
-
-  const initialValueComparison = initialValuesPath
-    ? getIn(state, initialValuesPath) === undefined
-    : true
-
-  return getIn(state, path) !== undefined && initialValueComparison
-}
+const shouldDelete = ({ getIn }) => (state, path) => true
 
 const isReduxFormAction = action =>
   action &&
