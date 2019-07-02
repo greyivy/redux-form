@@ -2,14 +2,17 @@ import isEvent from './isEvent'
 
 var getSelectedValues = function getSelectedValues(options) {
   var result = []
+
   if (options) {
     for (var index = 0; index < options.length; index++) {
       var option = options[index]
+
       if (option.selected) {
         result.push(option.value)
       }
     }
   }
+
   return result
 }
 
@@ -22,9 +25,11 @@ var getValue = function getValue(event, isReactNative) {
     ) {
       return event.nativeEvent.text
     }
+
     if (isReactNative && event.nativeEvent !== undefined) {
       return event.nativeEvent.text
     }
+
     var detypedEvent = event
     var _detypedEvent$target = detypedEvent.target,
       type = _detypedEvent$target.type,
@@ -36,14 +41,18 @@ var getValue = function getValue(event, isReactNative) {
     if (type === 'checkbox') {
       return !!checked
     }
+
     if (type === 'file') {
       return files || (dataTransfer && dataTransfer.files)
     }
+
     if (type === 'select-multiple') {
       return getSelectedValues(event.target.options)
     }
+
     return value
   }
+
   return event
 }
 

@@ -1,5 +1,4 @@
 export var prefix = '@@redux-form/'
-
 export var ARRAY_INSERT = prefix + 'ARRAY_INSERT'
 export var ARRAY_MOVE = prefix + 'ARRAY_MOVE'
 export var ARRAY_POP = prefix + 'ARRAY_POP'

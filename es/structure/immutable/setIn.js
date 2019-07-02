@@ -1,6 +1,5 @@
-import _toPath from 'lodash-es/toPath'
+import _toPath from 'lodash/toPath'
 import { List, Map } from 'immutable'
-
 var arrayPattern = /\[(\d+)\]/
 
 var undefinedArrayMerge = function undefinedArrayMerge(previous, next) {
@@ -22,21 +21,24 @@ var mergeLists = function mergeLists(originalList, value) {
 var assureComplexProps = function assureComplexProps(state, path) {
   for (var pathPart = 1; pathPart < path.length; ++pathPart) {
     var nextPart = path.slice(0, pathPart)
+
     if (state.getIn(nextPart) == null) {
       return state.setIn(nextPart, new Map())
     }
   }
+
   return state
 }
 /*
  * ImmutableJS' setIn function doesn't support array (List) creation
  * so we must pre-insert all arrays in the path ahead of time.
- * 
+ *
  * Additionally we must also pre-set a dummy Map at the location
- * of an array index if there's parts that come afterwards because 
- * the setIn function uses `{}` to mark an unset value instead of 
+ * of an array index if there's parts that come afterwards because
+ * the setIn function uses `{}` to mark an unset value instead of
  * undefined (which is the case for list / arrays).
  */
+
 export default function setIn(state, field, value) {
   var path = _toPath(field)
 
@@ -48,6 +50,7 @@ export default function setIn(state, field, value) {
   return state.withMutations(function(mutable) {
     var _loop = function _loop(pathIndex) {
       var nextPart = path[pathIndex + 1]
+
       if (isNaN(nextPart)) {
         return 'continue'
       }

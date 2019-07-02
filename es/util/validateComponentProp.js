@@ -15,6 +15,7 @@ var validateComponentProp = function validateComponentProp(
         '`.'
     )
   }
+
   return null
 }
 

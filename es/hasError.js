@@ -2,8 +2,10 @@ var getErrorKeys = function getErrorKeys(name, type) {
   switch (type) {
     case 'Field':
       return [name, name + '._error']
+
     case 'FieldArray':
       return [name + '._error']
+
     default:
       throw new Error('Unknown field type')
   }
@@ -32,6 +34,7 @@ var createHasError = function createHasError(_ref) {
       )
     })
   }
+
   return hasError
 }
 

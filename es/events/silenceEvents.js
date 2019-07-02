@@ -4,7 +4,7 @@ var silenceEvents = function silenceEvents(fn) {
   return function(event) {
     for (
       var _len = arguments.length,
-        args = Array(_len > 1 ? _len - 1 : 0),
+        args = new Array(_len > 1 ? _len - 1 : 0),
         _key = 1;
       _key < _len;
       _key++
@@ -13,8 +13,8 @@ var silenceEvents = function silenceEvents(fn) {
     }
 
     return silenceEvent(event)
-      ? fn.apply(undefined, args)
-      : fn.apply(undefined, [event].concat(args))
+      ? fn.apply(void 0, args)
+      : fn.apply(void 0, [event].concat(args))
   }
 }
 

@@ -8,6 +8,7 @@ var createGetFormSubmitErrors = function createGetFormSubmitErrors(_ref) {
         function(state) {
           return getIn(state, 'form')
         }
+
       return getIn(nonNullGetFormState(state), form + '.submitErrors') || empty
     }
   }

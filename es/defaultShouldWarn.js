@@ -9,6 +9,7 @@ var defaultShouldWarn = function defaultShouldWarn(_ref) {
   if (initialRender) {
     return true
   }
+
   return (
     !structure.deepEqual(values, nextProps && nextProps.values) ||
     !structure.deepEqual(lastFieldValidatorKeys, fieldValidatorKeys)

@@ -7,6 +7,7 @@ var createIsSubmitting = function createIsSubmitting(_ref) {
         function(state) {
           return getIn(state, 'form')
         }
+
       return !!getIn(nonNullGetFormState(state), form + '.submitting')
     }
   }

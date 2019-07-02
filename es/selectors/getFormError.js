@@ -7,6 +7,7 @@ var createGetFormError = function createGetFormError(_ref) {
         function(state) {
           return getIn(state, 'form')
         }
+
       return getIn(nonNullGetFormState(state), form + '.error')
     }
   }

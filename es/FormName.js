@@ -1,19 +1,13 @@
 import * as React from 'react'
-import PropTypes from 'prop-types'
+import { withReduxForm } from './ReduxFormContext'
 
-var FormName = function FormName(_ref, _ref2) {
-  var children = _ref.children
-  var _reduxForm = _ref2._reduxForm
+var FormName = function FormName(_ref) {
+  var children = _ref.children,
+    _reduxForm = _ref._reduxForm
   return children({
     form: _reduxForm && _reduxForm.form,
     sectionPrefix: _reduxForm && _reduxForm.sectionPrefix
   })
 }
-FormName.contextTypes = {
-  _reduxForm: PropTypes.shape({
-    form: PropTypes.string.isRequired,
-    sectionPrefix: PropTypes.string
-  }).isRequired
-}
 
-export default FormName
+export default withReduxForm(FormName)

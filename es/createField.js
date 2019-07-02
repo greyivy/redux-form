@@ -1,72 +1,6 @@
-var _extends =
-  Object.assign ||
-  function(target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i]
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key]
-        }
-      }
-    }
-    return target
-  }
-
-var _createClass = (function() {
-  function defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i]
-      descriptor.enumerable = descriptor.enumerable || false
-      descriptor.configurable = true
-      if ('value' in descriptor) descriptor.writable = true
-      Object.defineProperty(target, descriptor.key, descriptor)
-    }
-  }
-  return function(Constructor, protoProps, staticProps) {
-    if (protoProps) defineProperties(Constructor.prototype, protoProps)
-    if (staticProps) defineProperties(Constructor, staticProps)
-    return Constructor
-  }
-})()
-
-function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError('Cannot call a class as a function')
-  }
-}
-
-function _possibleConstructorReturn(self, call) {
-  if (!self) {
-    throw new ReferenceError(
-      "this hasn't been initialised - super() hasn't been called"
-    )
-  }
-  return call && (typeof call === 'object' || typeof call === 'function')
-    ? call
-    : self
-}
-
-function _inherits(subClass, superClass) {
-  if (typeof superClass !== 'function' && superClass !== null) {
-    throw new TypeError(
-      'Super expression must either be null or a function, not ' +
-        typeof superClass
-    )
-  }
-  subClass.prototype = Object.create(superClass && superClass.prototype, {
-    constructor: {
-      value: subClass,
-      enumerable: false,
-      writable: true,
-      configurable: true
-    }
-  })
-  if (superClass)
-    Object.setPrototypeOf
-      ? Object.setPrototypeOf(subClass, superClass)
-      : (subClass.__proto__ = superClass)
-}
-
+import _extends from '@babel/runtime/helpers/extends'
+import _createClass from '@babel/runtime/helpers/createClass'
+import _inheritsLoose from '@babel/runtime/helpers/inheritsLoose'
 import React, { Component, createElement } from 'react'
 import { polyfill } from 'react-lifecycles-compat'
 import PropTypes from 'prop-types'
@@ -75,166 +9,160 @@ import createConnectedField from './ConnectedField'
 import shallowCompare from './util/shallowCompare'
 import prefixName from './util/prefixName'
 import plain from './structure/plain'
-
+import { withReduxForm } from './ReduxFormContext'
 import validateComponentProp from './util/validateComponentProp'
 
 var createField = function createField(structure) {
   var ConnectedField = createConnectedField(structure)
-
   var setIn = structure.setIn
 
-  var Field = (function(_Component) {
-    _inherits(Field, _Component)
+  var Field =
+    /*#__PURE__*/
+    (function(_Component) {
+      _inheritsLoose(Field, _Component)
 
-    function Field(props, context) {
-      _classCallCheck(this, Field)
+      function Field(props) {
+        var _this
 
-      var _this = _possibleConstructorReturn(
-        this,
-        (Field.__proto__ || Object.getPrototypeOf(Field)).call(
-          this,
-          props,
-          context
-        )
-      )
+        _this = _Component.call(this, props) || this
+        _this.ref = React.createRef()
+        _this.ref = React.createRef()
 
-      _this.saveRef = function(ref) {
-        return (_this.ref = ref)
-      }
+        _this.normalize = function(name, value) {
+          var normalize = _this.props.normalize
 
-      _this.normalize = function(name, value) {
-        var normalize = _this.props.normalize
+          if (!normalize) {
+            return value
+          }
 
-        if (!normalize) {
-          return value
+          var previousValues = _this.props._reduxForm.getValues()
+
+          var previousValue = _this.value
+          var nextValues = setIn(previousValues, name, value)
+          return normalize(
+            value,
+            previousValue,
+            nextValues,
+            previousValues,
+            name
+          )
         }
-        var previousValues = _this.context._reduxForm.getValues()
-        var previousValue = _this.value
-        var nextValues = setIn(previousValues, name, value)
-        return normalize(value, previousValue, nextValues, previousValues)
+
+        if (!props._reduxForm) {
+          throw new Error(
+            'Field must be inside a component decorated with reduxForm()'
+          )
+        }
+
+        return _this
       }
 
-      if (!context._reduxForm) {
-        throw new Error(
-          'Field must be inside a component decorated with reduxForm()'
+      var _proto = Field.prototype
+
+      _proto.componentDidMount = function componentDidMount() {
+        var _this2 = this
+
+        this.props._reduxForm.register(
+          this.name,
+          'Field',
+          function() {
+            return _this2.props.validate
+          },
+          function() {
+            return _this2.props.warn
+          }
         )
       }
-      return _this
-    }
 
-    _createClass(Field, [
-      {
-        key: 'componentDidMount',
-        value: function componentDidMount() {
-          var _this2 = this
+      _proto.shouldComponentUpdate = function shouldComponentUpdate(
+        nextProps,
+        nextState
+      ) {
+        return shallowCompare(this, nextProps, nextState)
+      }
 
-          this.context._reduxForm.register(
-            this.name,
+      _proto.componentWillReceiveProps = function componentWillReceiveProps(
+        nextProps
+      ) {
+        var oldName = prefixName(this.props, this.props.name)
+        var newName = prefixName(nextProps, nextProps.name)
+
+        if (
+          oldName !== newName || // use deepEqual here because they could be a function or an array of functions
+          !plain.deepEqual(this.props.validate, nextProps.validate) ||
+          !plain.deepEqual(this.props.warn, nextProps.warn)
+        ) {
+          // unregister old name
+          this.props._reduxForm.unregister(oldName) // register new name
+
+          this.props._reduxForm.register(
+            newName,
             'Field',
             function() {
-              return _this2.props.validate
+              return nextProps.validate
             },
             function() {
-              return _this2.props.warn
+              return nextProps.warn
             }
           )
         }
-      },
-      {
-        key: 'shouldComponentUpdate',
-        value: function shouldComponentUpdate(nextProps, nextState) {
-          return shallowCompare(this, nextProps, nextState)
-        }
-      },
-      {
-        key: 'componentWillReceiveProps',
-        value: function componentWillReceiveProps(nextProps, nextContext) {
-          var oldName = prefixName(this.context, this.props.name)
-          var newName = prefixName(nextContext, nextProps.name)
+      }
 
-          if (
-            oldName !== newName ||
-            // use deepEqual here because they could be a function or an array of functions
-            !plain.deepEqual(this.props.validate, nextProps.validate) ||
-            !plain.deepEqual(this.props.warn, nextProps.warn)
-          ) {
-            // unregister old name
-            this.context._reduxForm.unregister(oldName)
-            // register new name
-            this.context._reduxForm.register(
-              newName,
-              'Field',
-              function() {
-                return nextProps.validate
-              },
-              function() {
-                return nextProps.warn
-              }
-            )
+      _proto.componentWillUnmount = function componentWillUnmount() {
+        this.props._reduxForm.unregister(this.name)
+      }
+
+      _proto.getRenderedComponent = function getRenderedComponent() {
+        invariant(
+          this.props.forwardRef,
+          'If you want to access getRenderedComponent(), ' +
+            'you must specify a forwardRef prop to Field'
+        )
+        return this.ref.current
+          ? this.ref.current.getRenderedComponent()
+          : undefined
+      }
+
+      _proto.render = function render() {
+        return createElement(
+          ConnectedField,
+          _extends({}, this.props, {
+            name: this.name,
+            normalize: this.normalize,
+            ref: this.ref
+          })
+        )
+      }
+
+      _createClass(Field, [
+        {
+          key: 'name',
+          get: function get() {
+            return prefixName(this.props, this.props.name)
+          }
+        },
+        {
+          key: 'dirty',
+          get: function get() {
+            return !this.pristine
+          }
+        },
+        {
+          key: 'pristine',
+          get: function get() {
+            return !!(this.ref.current && this.ref.current.isPristine())
+          }
+        },
+        {
+          key: 'value',
+          get: function get() {
+            return this.ref.current && this.ref.current.getValue()
           }
         }
-      },
-      {
-        key: 'componentWillUnmount',
-        value: function componentWillUnmount() {
-          this.context._reduxForm.unregister(this.name)
-        }
-      },
-      {
-        key: 'getRenderedComponent',
-        value: function getRenderedComponent() {
-          invariant(
-            this.props.withRef,
-            'If you want to access getRenderedComponent(), ' +
-              'you must specify a withRef prop to Field'
-          )
-          return this.ref
-            ? this.ref.getWrappedInstance().getRenderedComponent()
-            : undefined
-        }
-      },
-      {
-        key: 'render',
-        value: function render() {
-          return createElement(
-            ConnectedField,
-            _extends({}, this.props, {
-              name: this.name,
-              normalize: this.normalize,
-              _reduxForm: this.context._reduxForm,
-              ref: this.saveRef
-            })
-          )
-        }
-      },
-      {
-        key: 'name',
-        get: function get() {
-          return prefixName(this.context, this.props.name)
-        }
-      },
-      {
-        key: 'dirty',
-        get: function get() {
-          return !this.pristine
-        }
-      },
-      {
-        key: 'pristine',
-        get: function get() {
-          return !!(this.ref && this.ref.getWrappedInstance().isPristine())
-        }
-      },
-      {
-        key: 'value',
-        get: function get() {
-          return this.ref && this.ref.getWrappedInstance().getValue()
-        }
-      }
-    ])
+      ])
 
-    return Field
-  })(Component)
+      return Field
+    })(Component)
 
   Field.propTypes = {
     name: PropTypes.string.isRequired,
@@ -256,15 +184,12 @@ var createField = function createField(structure) {
       PropTypes.func,
       PropTypes.arrayOf(PropTypes.func)
     ]),
-    withRef: PropTypes.bool,
-    immutableProps: PropTypes.arrayOf(PropTypes.string)
-  }
-  Field.contextTypes = {
+    forwardRef: PropTypes.bool,
+    immutableProps: PropTypes.arrayOf(PropTypes.string),
     _reduxForm: PropTypes.object
   }
-
   polyfill(Field)
-  return Field
+  return withReduxForm(Field)
 }
 
 export default createField

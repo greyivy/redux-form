@@ -1,9 +1,10 @@
 var isHotReloading = function isHotReloading() {
+  var castModule = module
   return !!(
-    typeof module !== 'undefined' &&
-    module.hot &&
-    typeof module.hot.status === 'function' &&
-    module.hot.status() === 'apply'
+    typeof castModule !== 'undefined' &&
+    castModule.hot &&
+    typeof castModule.hot.status === 'function' &&
+    castModule.hot.status() === 'apply'
   )
 }
 

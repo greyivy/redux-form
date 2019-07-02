@@ -7,6 +7,7 @@ var createHasSubmitFailed = function createHasSubmitFailed(_ref) {
         function(state) {
           return getIn(state, 'form')
         }
+
       return !!getIn(nonNullGetFormState(state), form + '.submitFailed')
     }
   }

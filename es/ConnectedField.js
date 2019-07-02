@@ -1,96 +1,6 @@
-var _extends =
-  Object.assign ||
-  function(target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i]
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key]
-        }
-      }
-    }
-    return target
-  }
-
-var _createClass = (function() {
-  function defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i]
-      descriptor.enumerable = descriptor.enumerable || false
-      descriptor.configurable = true
-      if ('value' in descriptor) descriptor.writable = true
-      Object.defineProperty(target, descriptor.key, descriptor)
-    }
-  }
-  return function(Constructor, protoProps, staticProps) {
-    if (protoProps) defineProperties(Constructor.prototype, protoProps)
-    if (staticProps) defineProperties(Constructor, staticProps)
-    return Constructor
-  }
-})()
-
-var _typeof =
-  typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol'
-    ? function(obj) {
-        return typeof obj
-      }
-    : function(obj) {
-        return obj &&
-          typeof Symbol === 'function' &&
-          obj.constructor === Symbol &&
-          obj !== Symbol.prototype
-          ? 'symbol'
-          : typeof obj
-      }
-
-function _objectWithoutProperties(obj, keys) {
-  var target = {}
-  for (var i in obj) {
-    if (keys.indexOf(i) >= 0) continue
-    if (!Object.prototype.hasOwnProperty.call(obj, i)) continue
-    target[i] = obj[i]
-  }
-  return target
-}
-
-function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError('Cannot call a class as a function')
-  }
-}
-
-function _possibleConstructorReturn(self, call) {
-  if (!self) {
-    throw new ReferenceError(
-      "this hasn't been initialised - super() hasn't been called"
-    )
-  }
-  return call && (typeof call === 'object' || typeof call === 'function')
-    ? call
-    : self
-}
-
-function _inherits(subClass, superClass) {
-  if (typeof superClass !== 'function' && superClass !== null) {
-    throw new TypeError(
-      'Super expression must either be null or a function, not ' +
-        typeof superClass
-    )
-  }
-  subClass.prototype = Object.create(superClass && superClass.prototype, {
-    constructor: {
-      value: subClass,
-      enumerable: false,
-      writable: true,
-      configurable: true
-    }
-  })
-  if (superClass)
-    Object.setPrototypeOf
-      ? Object.setPrototypeOf(subClass, superClass)
-      : (subClass.__proto__ = superClass)
-}
-
+import _objectWithoutPropertiesLoose from '@babel/runtime/helpers/objectWithoutPropertiesLoose'
+import _extends from '@babel/runtime/helpers/extends'
+import _inheritsLoose from '@babel/runtime/helpers/inheritsLoose'
 import React, { Component, createElement } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
@@ -99,16 +9,12 @@ import onChangeValue from './events/onChangeValue'
 import { dataKey } from './util/eventConsts'
 import plain from './structure/plain'
 import isReactNative from './isReactNative'
-
 import validateComponentProp from './util/validateComponentProp'
-
+import isEvent from './events/isEvent'
 var propsToNotUpdateFor = ['_reduxForm']
 
 var isObject = function isObject(entity) {
-  return (
-    entity &&
-    (typeof entity === 'undefined' ? 'undefined' : _typeof(entity)) === 'object'
-  )
+  return entity && typeof entity === 'object'
 }
 
 var isFunction = function isFunction(entity) {
@@ -150,58 +56,47 @@ var createConnectedField = function createConnectedField(structure) {
     getIn = structure.getIn
 
   var getSyncError = function getSyncError(syncErrors, name) {
-    var error = plain.getIn(syncErrors, name)
-    // Because the error for this field might not be at a level in the error structure where
+    var error = plain.getIn(syncErrors, name) // Because the error for this field might not be at a level in the error structure where
     // it can be set directly, it might need to be unwrapped from the _error property
+
     return error && error._error ? error._error : error
   }
 
   var getSyncWarning = function getSyncWarning(syncWarnings, name) {
-    var warning = getIn(syncWarnings, name)
-    // Because the warning for this field might not be at a level in the warning structure where
+    var warning = getIn(syncWarnings, name) // Because the warning for this field might not be at a level in the warning structure where
     // it can be set directly, it might need to be unwrapped from the _warning property
+
     return warning && warning._warning ? warning._warning : warning
   }
 
-  var ConnectedField = (function(_Component) {
-    _inherits(ConnectedField, _Component)
+  var ConnectedField =
+    /*#__PURE__*/
+    (function(_Component) {
+      _inheritsLoose(ConnectedField, _Component)
 
-    function ConnectedField() {
-      var _ref
+      function ConnectedField() {
+        var _this
 
-      var _temp, _this, _ret
+        for (
+          var _len = arguments.length, args = new Array(_len), _key = 0;
+          _key < _len;
+          _key++
+        ) {
+          args[_key] = arguments[_key]
+        }
 
-      _classCallCheck(this, ConnectedField)
+        _this = _Component.call.apply(_Component, [this].concat(args)) || this
+        _this.ref = React.createRef()
 
-      for (
-        var _len = arguments.length, args = Array(_len), _key = 0;
-        _key < _len;
-        _key++
-      ) {
-        args[_key] = arguments[_key]
-      }
-
-      return (
-        (_ret = ((_temp = ((_this = _possibleConstructorReturn(
-          this,
-          (_ref =
-            ConnectedField.__proto__ ||
-            Object.getPrototypeOf(ConnectedField)).call.apply(
-            _ref,
-            [this].concat(args)
-          )
-        )),
-        _this)),
-        (_this.saveRef = function(ref) {
-          return (_this.ref = ref)
-        }),
-        (_this.isPristine = function() {
+        _this.isPristine = function() {
           return _this.props.pristine
-        }),
-        (_this.getValue = function() {
+        }
+
+        _this.getValue = function() {
           return _this.props.value
-        }),
-        (_this.handleChange = function(event) {
+        }
+
+        _this.handleChange = function(event) {
           var _this$props = _this.props,
             name = _this$props.name,
             dispatch = _this$props.dispatch,
@@ -210,21 +105,20 @@ var createConnectedField = function createConnectedField(structure) {
             onChange = _this$props.onChange,
             _reduxForm = _this$props._reduxForm,
             previousValue = _this$props.value
-
           var newValue = onChangeValue(event, {
             name: name,
             parse: parse,
             normalize: normalize
           })
-
           var defaultPrevented = false
+
           if (onChange) {
             // Can't seem to find a way to extend Event in React Native,
             // thus I simply avoid adding preventDefault() in a RN environment
             // to prevent the following error:
             // `One of the sources for assign has an enumerable key on the prototype chain`
             // Reference: https://github.com/facebook/react-native/issues/5507
-            if (!isReactNative) {
+            if (!isReactNative && isEvent(event)) {
               onChange(
                 _extends({}, event, {
                   preventDefault: function preventDefault() {
@@ -237,27 +131,28 @@ var createConnectedField = function createConnectedField(structure) {
                 name
               )
             } else {
-              onChange(event, newValue, previousValue, name)
+              defaultPrevented = onChange(event, newValue, previousValue, name)
             }
           }
+
           if (!defaultPrevented) {
             // dispatch change action
-            dispatch(_reduxForm.change(name, newValue))
+            dispatch(_reduxForm.change(name, newValue)) // call post-change callback
 
-            // call post-change callback
             if (_reduxForm.asyncValidate) {
               _reduxForm.asyncValidate(name, newValue, 'change')
             }
           }
-        }),
-        (_this.handleFocus = function(event) {
+        }
+
+        _this.handleFocus = function(event) {
           var _this$props2 = _this.props,
             name = _this$props2.name,
             dispatch = _this$props2.dispatch,
             onFocus = _this$props2.onFocus,
             _reduxForm = _this$props2._reduxForm
-
           var defaultPrevented = false
+
           if (onFocus) {
             if (!isReactNative) {
               onFocus(
@@ -270,15 +165,16 @@ var createConnectedField = function createConnectedField(structure) {
                 name
               )
             } else {
-              onFocus(event, name)
+              defaultPrevented = onFocus(event, name)
             }
           }
 
           if (!defaultPrevented) {
             dispatch(_reduxForm.focus(name))
           }
-        }),
-        (_this.handleBlur = function(event) {
+        }
+
+        _this.handleBlur = function(event) {
           var _this$props3 = _this.props,
             name = _this$props3.name,
             dispatch = _this$props3.dispatch,
@@ -288,20 +184,19 @@ var createConnectedField = function createConnectedField(structure) {
             _reduxForm = _this$props3._reduxForm,
             _value = _this$props3._value,
             previousValue = _this$props3.value
-
           var newValue = onChangeValue(event, {
             name: name,
             parse: parse,
             normalize: normalize
-          })
-
-          // for checkbox and radio, if the value property of checkbox or radio equals
+          }) // for checkbox and radio, if the value property of checkbox or radio equals
           // the value passed by blur event, then fire blur action with previousValue.
+
           if (newValue === _value && _value !== undefined) {
             newValue = previousValue
           }
 
           var defaultPrevented = false
+
           if (onBlur) {
             if (!isReactNative) {
               onBlur(
@@ -316,43 +211,42 @@ var createConnectedField = function createConnectedField(structure) {
                 name
               )
             } else {
-              onBlur(event, newValue, previousValue, name)
+              defaultPrevented = onBlur(event, newValue, previousValue, name)
             }
           }
 
           if (!defaultPrevented) {
             // dispatch blur action
-            dispatch(_reduxForm.blur(name, newValue))
+            dispatch(_reduxForm.blur(name, newValue)) // call post-blur callback
 
-            // call post-blur callback
             if (_reduxForm.asyncValidate) {
               _reduxForm.asyncValidate(name, newValue, 'blur')
             }
           }
-        }),
-        (_this.handleDragStart = function(event) {
+        }
+
+        _this.handleDragStart = function(event) {
           var _this$props4 = _this.props,
             name = _this$props4.name,
             onDragStart = _this$props4.onDragStart,
             value = _this$props4.value
-
           eventDataTransferSetData(event, dataKey, value == null ? '' : value)
 
           if (onDragStart) {
             onDragStart(event, name)
           }
-        }),
-        (_this.handleDrop = function(event) {
+        }
+
+        _this.handleDrop = function(event) {
           var _this$props5 = _this.props,
             name = _this$props5.name,
             dispatch = _this$props5.dispatch,
             onDrop = _this$props5.onDrop,
             _reduxForm = _this$props5._reduxForm,
             previousValue = _this$props5.value
-
           var newValue = eventDataTransferGetData(event, dataKey)
-
           var defaultPrevented = false
+
           if (onDrop) {
             onDrop(
               _extends({}, event, {
@@ -372,119 +266,111 @@ var createConnectedField = function createConnectedField(structure) {
             dispatch(_reduxForm.change(name, newValue))
             eventPreventDefault(event)
           }
-        }),
-        _temp)),
-        _possibleConstructorReturn(_this, _ret)
-      )
-    }
+        }
 
-    _createClass(ConnectedField, [
-      {
-        key: 'shouldComponentUpdate',
-        value: function shouldComponentUpdate(nextProps) {
-          var _this2 = this
+        return _this
+      }
 
-          var nextPropsKeys = Object.keys(nextProps)
-          var thisPropsKeys = Object.keys(this.props)
-          // if we have children, we MUST update in React 16
-          // https://twitter.com/erikras/status/915866544558788608
-          return !!(
-            this.props.children ||
-            nextProps.children ||
-            nextPropsKeys.length !== thisPropsKeys.length ||
-            nextPropsKeys.some(function(prop) {
-              if (~(nextProps.immutableProps || []).indexOf(prop)) {
-                return _this2.props[prop] !== nextProps[prop]
-              }
-              return (
-                !~propsToNotUpdateFor.indexOf(prop) &&
-                !deepEqual(_this2.props[prop], nextProps[prop])
-              )
+      var _proto = ConnectedField.prototype
+
+      _proto.shouldComponentUpdate = function shouldComponentUpdate(nextProps) {
+        var _this2 = this
+
+        var nextPropsKeys = Object.keys(nextProps)
+        var thisPropsKeys = Object.keys(this.props) // if we have children, we MUST update in React 16
+        // https://twitter.com/erikras/status/915866544558788608
+
+        return !!(
+          this.props.children ||
+          nextProps.children ||
+          nextPropsKeys.length !== thisPropsKeys.length ||
+          nextPropsKeys.some(function(prop) {
+            if (~(nextProps.immutableProps || []).indexOf(prop)) {
+              return _this2.props[prop] !== nextProps[prop]
+            }
+
+            return (
+              !~propsToNotUpdateFor.indexOf(prop) &&
+              !deepEqual(_this2.props[prop], nextProps[prop])
+            )
+          })
+        )
+      }
+
+      _proto.getRenderedComponent = function getRenderedComponent() {
+        return this.ref.current
+      }
+
+      _proto.render = function render() {
+        var _this$props6 = this.props,
+          component = _this$props6.component,
+          forwardRef = _this$props6.forwardRef,
+          name = _this$props6.name,
+          _reduxForm = _this$props6._reduxForm,
+          normalize = _this$props6.normalize,
+          onBlur = _this$props6.onBlur,
+          onChange = _this$props6.onChange,
+          onFocus = _this$props6.onFocus,
+          onDragStart = _this$props6.onDragStart,
+          onDrop = _this$props6.onDrop,
+          immutableProps = _this$props6.immutableProps,
+          rest = _objectWithoutPropertiesLoose(_this$props6, [
+            'component',
+            'forwardRef',
+            'name',
+            '_reduxForm',
+            'normalize',
+            'onBlur',
+            'onChange',
+            'onFocus',
+            'onDragStart',
+            'onDrop',
+            'immutableProps'
+          ])
+
+        var _createFieldProps = createFieldProps(
+            structure,
+            name,
+            _extends({}, rest, {
+              form: _reduxForm.form,
+              onBlur: this.handleBlur,
+              onChange: this.handleChange,
+              onDrop: this.handleDrop,
+              onDragStart: this.handleDragStart,
+              onFocus: this.handleFocus
             })
-          )
+          ),
+          custom = _createFieldProps.custom,
+          props = _objectWithoutPropertiesLoose(_createFieldProps, ['custom'])
+
+        if (forwardRef) {
+          custom.ref = this.ref
         }
-      },
-      {
-        key: 'getRenderedComponent',
-        value: function getRenderedComponent() {
-          return this.ref
-        }
-      },
-      {
-        key: 'render',
-        value: function render() {
-          var _props = this.props,
-            component = _props.component,
-            withRef = _props.withRef,
-            name = _props.name,
-            _reduxForm = _props._reduxForm,
-            normalize = _props.normalize,
-            onBlur = _props.onBlur,
-            onChange = _props.onChange,
-            onFocus = _props.onFocus,
-            onDragStart = _props.onDragStart,
-            onDrop = _props.onDrop,
-            immutableProps = _props.immutableProps,
-            rest = _objectWithoutProperties(_props, [
-              'component',
-              'withRef',
-              'name',
-              '_reduxForm',
-              'normalize',
-              'onBlur',
-              'onChange',
-              'onFocus',
-              'onDragStart',
-              'onDrop',
-              'immutableProps'
-            ])
 
-          var _createFieldProps = createFieldProps(
-              structure,
-              name,
-              _extends({}, rest, {
-                form: _reduxForm.form,
-                onBlur: this.handleBlur,
-                onChange: this.handleChange,
-                onDrop: this.handleDrop,
-                onDragStart: this.handleDragStart,
-                onFocus: this.handleFocus
-              })
-            ),
-            custom = _createFieldProps.custom,
-            props = _objectWithoutProperties(_createFieldProps, ['custom'])
+        if (typeof component === 'string') {
+          var input = props.input,
+            meta = props.meta // eslint-disable-line no-unused-vars
+          // flatten input into other props
 
-          if (withRef) {
-            custom.ref = this.saveRef
-          }
-          if (typeof component === 'string') {
-            var input = props.input,
-              meta = props.meta // eslint-disable-line no-unused-vars
-            // flatten input into other props
-
-            return createElement(component, _extends({}, input, custom))
-          } else {
-            return createElement(component, _extends({}, props, custom))
-          }
+          return createElement(component, _extends({}, input, custom))
+        } else {
+          return createElement(component, _extends({}, props, custom))
         }
       }
-    ])
 
-    return ConnectedField
-  })(Component)
+      return ConnectedField
+    })(Component)
 
   ConnectedField.propTypes = {
     component: validateComponentProp,
     props: PropTypes.object
   }
-
   var connector = connect(
     function(state, ownProps) {
       var name = ownProps.name,
         _ownProps$_reduxForm = ownProps._reduxForm,
         initialValues = _ownProps$_reduxForm.initialValues,
         getFormState = _ownProps$_reduxForm.getFormState
-
       var formState = getFormState(state)
       var initialState = getIn(formState, 'initial.' + name)
       var initial =
@@ -509,12 +395,14 @@ var createConnectedField = function createConnectedField(structure) {
         syncWarning: syncWarning,
         initial: initial,
         value: value,
-        _value: ownProps.value // save value passed in (for checkboxes)
+        _value: ownProps.value // save value passed in (for radios)
       }
     },
     undefined,
     undefined,
-    { withRef: true }
+    {
+      forwardRef: true
+    }
   )
   return connector(ConnectedField)
 }

@@ -7,6 +7,7 @@ var createGetFormInitialValues = function createGetFormInitialValues(_ref) {
         function(state) {
           return getIn(state, 'form')
         }
+
       return getIn(nonNullGetFormState(state), form + '.initial')
     }
   }

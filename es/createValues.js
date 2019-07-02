@@ -1,31 +1,4 @@
-var _extends =
-  Object.assign ||
-  function(target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i]
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key]
-        }
-      }
-    }
-    return target
-  }
-
-function _defineProperty(obj, key, value) {
-  if (key in obj) {
-    Object.defineProperty(obj, key, {
-      value: value,
-      enumerable: true,
-      configurable: true,
-      writable: true
-    })
-  } else {
-    obj[key] = value
-  }
-  return obj
-}
-
+import _extends from '@babel/runtime/helpers/extends'
 import { connect } from 'react-redux'
 
 var createValues = function createValues(_ref) {
@@ -46,13 +19,14 @@ var createValues = function createValues(_ref) {
 
     return connect(
       function(state) {
-        return _defineProperty(
-          {},
-          prop,
-          getIn(getFormState(state), form + '.values')
+        var _ref2
+
+        return (
+          (_ref2 = {}),
+          (_ref2[prop] = getIn(getFormState(state), form + '.values')),
+          _ref2
         )
-      }
-      // ignore dispatch
+      } // ignore dispatch
     )
   }
 }

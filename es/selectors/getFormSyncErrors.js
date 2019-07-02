@@ -8,6 +8,7 @@ var createGetFormSyncErrors = function createGetFormSyncErrors(_ref) {
         function(state) {
           return getIn(state, 'form')
         }
+
       return getIn(nonNullGetFormState(state), form + '.syncErrors') || empty
     }
   }

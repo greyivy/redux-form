@@ -1,4 +1,4 @@
-import _isEqualWith from 'lodash-es/isEqualWith'
+import _isEqualWith from 'lodash/isEqualWith'
 
 var customizer = function customizer(
   objectValue,
@@ -21,6 +21,7 @@ var customizer = function customizer(
 
 var shallowCompare = function shallowCompare(instance, nextProps, nextState) {
   var propsEqual = _isEqualWith(instance.props, nextProps, customizer)
+
   var stateEqual = _isEqualWith(instance.state, nextState, customizer)
 
   return !propsEqual || !stateEqual

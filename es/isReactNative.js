@@ -3,5 +3,4 @@ var isReactNative =
   window.navigator &&
   window.navigator.product &&
   window.navigator.product === 'ReactNative'
-
 export default isReactNative

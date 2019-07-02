@@ -8,6 +8,7 @@ var createGetFormSyncWarnings = function createGetFormSyncWarnings(_ref) {
         function(state) {
           return getIn(state, 'form')
         }
+
       return getIn(nonNullGetFormState(state), form + '.syncWarnings') || empty
     }
   }

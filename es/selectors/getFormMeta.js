@@ -8,6 +8,7 @@ var createGetFormMeta = function createGetFormMeta(_ref) {
         function(state) {
           return getIn(state, 'form')
         }
+
       return getIn(nonNullGetFormState(state), form + '.fields') || empty
     }
   }
