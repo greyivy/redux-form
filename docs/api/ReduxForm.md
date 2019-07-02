@@ -39,7 +39,7 @@ at "design time" or passed in as props to your component at runtime.**
 > async validation only being run before submission.
 
 > See
-> [Asynchronous Blur Validation Example](https://redux-form.com/8.1.0/examples/asyncValidation/)
+> [Asynchronous Blur Validation Example](https://redux-form.com/8.2.2/examples/asyncValidation/)
 > for more details.
 
 #### `asyncChangeFields : Array<String>` [optional]
@@ -48,7 +48,7 @@ at "design time" or passed in as props to your component at runtime.**
 > function.
 
 > See
-> [Asynchronous Change Validation Example](https://redux-form.com/8.1.0/examples/asyncChangeValidation/)
+> [Asynchronous Change Validation Example](https://redux-form.com/8.2.2/examples/asyncChangeValidation/)
 > for more details.
 
 #### `asyncValidate : (values:Object, dispatch:Function, props:Object, blurredField:String) => Promise<undefined, errors:Object>` [optional]
@@ -59,7 +59,7 @@ at "design time" or passed in as props to your component at runtime.**
 > object of validation errors in the form `{ field1: <String>, field2: <String> }`.
 
 > See
-> [Asynchronous Blur Validation Example](https://redux-form.com/8.1.0/examples/asyncValidation/)
+> [Asynchronous Blur Validation Example](https://redux-form.com/8.2.2/examples/asyncValidation/)
 > for more details.
 
 #### `destroyOnUnmount : boolean` [optional]
@@ -107,6 +107,11 @@ at "design time" or passed in as props to your component at runtime.**
 > situations where the form has live updates or continues to be editable after
 > form submission; it prevents reinitialization from overwriting user changes.
 > Defaults to `false`.
+
+#### `submitAsSideEffect : boolean` [optional]
+
+> When set to `true`, the return value of `onSubmit` function will be dispatched
+> as a Redux action. **IMPORTANT: When set, submission lifecycle is not run automatically**
 
 #### `updateUnregisteredFields : boolean` [optional]
 
@@ -241,9 +246,10 @@ at "design time" or passed in as props to your component at runtime.**
 
 > ##### `trigger : String` [required]
 
-> The reason to possibly run async validation. It will either be: `'blur'` or
-> `'submit'`, depending on whether an async blur field had triggered the async
-> validation or if submitting the form has triggered it, respectively.
+> The reason to possibly run async validation. It will be one of `'blur'`,
+> `'change'` and `'submit'`, depending on whether a field, either blurred or
+> changed, had triggered the async validation or if submitting the form has
+> triggered it, respectively.
 
 > ##### `blurredField : string` [optional]
 
@@ -384,7 +390,7 @@ switch (trigger) {
 > validation fails, it should return the validation errors in the form `{ field1: <String>, field2: <String> }`. Defaults to `(values, props) => ({})`.
 
 > See
-> [Synchronous Validation Example](https://redux-form.com/8.1.0/examples/syncValidation/)
+> [Synchronous Validation Example](https://redux-form.com/8.2.2/examples/syncValidation/)
 > for more details.
 
 #### `warn : (values:Object, props:Object) => warnings:Object` [optional]

@@ -186,6 +186,7 @@ export type Config = {
   onSubmitFail?: OnSubmitFail,
   onSubmitSuccess?: OnSubmitSuccess,
   propNamespace?: string,
+  submitAsSideEffect?: boolean,
   validate?: ValidateFunction,
   warn?: ValidateFunction,
   touchOnBlur?: boolean,
@@ -255,6 +256,7 @@ export type Props = {
   startSubmit: StartSubmitAction,
   stopAsyncValidation: StopAsyncValidationAction,
   stopSubmit: StopSubmitAction,
+  submitAsSideEffect: boolean,
   submitting: boolean,
   submitFailed: boolean,
   submitSucceeded: boolean,
@@ -301,6 +303,7 @@ const createReduxForm = (structure: Structure<*, *>) => {
       getFormState: state => getIn(state, 'form'),
       pure: true,
       forceUnregisterOnUnmount: false,
+      submitAsSideEffect: false,
       ...initialConfig
     }
 
@@ -630,11 +633,18 @@ const createReduxForm = (structure: Structure<*, *>) => {
             return list
           }
           let keySeq = keys(registeredFields)
-          if (options && options.excludeFieldArray) {
-            keySeq = keySeq.filter(
-              name =>
-                getIn(registeredFields, `['${name}'].type`) !== 'FieldArray'
-            )
+          if (options) {
+            if (options.excludeFieldArray) {
+              keySeq = keySeq.filter(
+                name =>
+                  getIn(registeredFields, `['${name}'].type`) !== 'FieldArray'
+              )
+            }
+            if (options.excludeUnregistered) {
+              keySeq = keySeq.filter(
+                name => getIn(registeredFields, `['${name}'].count`) !== 0
+              )
+            }
           }
           return fromJS(
             keySeq.reduce((acc, key) => {
@@ -788,7 +798,10 @@ const createReduxForm = (structure: Structure<*, *>) => {
                     },
                     this.props.validExceptSubmit,
                     this.asyncValidate,
-                    this.getFieldList({ excludeFieldArray: true })
+                    this.getFieldList({
+                      excludeFieldArray: true,
+                      excludeUnregistered: true
+                    })
                   )
                 )
               }
@@ -807,7 +820,10 @@ const createReduxForm = (structure: Structure<*, *>) => {
                     },
                     this.props.validExceptSubmit,
                     this.asyncValidate,
-                    this.getFieldList({ excludeFieldArray: true })
+                    this.getFieldList({
+                      excludeFieldArray: true,
+                      excludeUnregistered: true
+                    })
                   )
                 )
               )
@@ -873,6 +889,7 @@ const createReduxForm = (structure: Structure<*, *>) => {
             startSubmit,
             stopAsyncValidation,
             stopSubmit,
+            submitAsSideEffect,
             submitting,
             submitFailed,
             submitSucceeded,
@@ -914,8 +931,10 @@ const createReduxForm = (structure: Structure<*, *>) => {
             reset,
             resetSection,
             submitting,
+            submitAsSideEffect,
             submitFailed,
             submitSucceeded,
+
             touch,
             untouch,
             valid,
@@ -1074,7 +1093,7 @@ const createReduxForm = (structure: Structure<*, *>) => {
             unshift: bindActionCreators(boundArrayACs.arrayUnshift, dispatch)
           }
 
-          const computedActions = {
+          return {
             ...connectedFormACs,
             ...boundArrayACs,
             blur: boundBlur,
@@ -1083,8 +1102,6 @@ const createReduxForm = (structure: Structure<*, *>) => {
             focus: boundFocus,
             dispatch
           }
-
-          return () => computedActions
         },
         undefined,
         { forwardRef: true }

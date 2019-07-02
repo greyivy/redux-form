@@ -1,101 +1,136 @@
 // @flow
 import isPromise from 'is-promise'
-import type { Dispatch } from 'redux'
+import type { SubmitFunction } from './types'
 import type { Props } from './createReduxForm'
 import SubmissionError from './SubmissionError'
-
-type SubmitFunction = {
-  (values: any, dispatch: Dispatch<*>, props: Object): any
-}
+import type { List } from 'immutable'
 
 const isSubmissionError = error => error && error.name === SubmissionError.name
+
 const mergeErrors = ({ asyncErrors, syncErrors }) =>
   asyncErrors && typeof asyncErrors.merge === 'function'
     ? asyncErrors.merge(syncErrors).toJS()
     : { ...asyncErrors, ...syncErrors }
 
-const handleSubmit = (
+let isImmutableList
+try {
+  // ImmutableJS isList implementation if available
+  // eslint-disable-next-line import/no-extraneous-dependencies
+  const { List } = require('immutable')
+  isImmutableList = List.isList
+} catch (err) {
+  isImmutableList = (maybeList: any) => false
+}
+
+// fields may be an Immutable List which cannot be spread
+// convert the fields to an array if necessary
+const makeFieldsArray = (fields: string[] | List<string>) =>
+  isImmutableList(fields) ? ((fields: any): List<string>).toArray() : fields
+
+const executeSubmit = (
   submit: SubmitFunction,
-  props: Props,
-  valid: boolean,
-  asyncValidate: Function,
-  fields: string[]
+  fields: string[] | List<string>,
+  props: Props
 ) => {
   const {
     dispatch,
+    submitAsSideEffect,
     onSubmitFail,
     onSubmitSuccess,
     startSubmit,
     stopSubmit,
     setSubmitFailed,
     setSubmitSucceeded,
+    values
+  } = props
+
+  fields = makeFieldsArray(fields)
+
+  let result
+  try {
+    result = submit(values, dispatch, props)
+  } catch (submitError) {
+    const error = isSubmissionError(submitError)
+      ? submitError.errors
+      : undefined
+    stopSubmit(error)
+    setSubmitFailed(...fields)
+    if (onSubmitFail) {
+      onSubmitFail(error, dispatch, submitError, props)
+    }
+    if (error || onSubmitFail) {
+      // if you've provided an onSubmitFail callback, don't re-throw the error
+      return error
+    } else {
+      throw submitError
+    }
+  }
+  if (submitAsSideEffect) {
+    if (result) {
+      dispatch(result)
+    }
+  } else {
+    if (isPromise(result)) {
+      startSubmit()
+      return result.then(
+        submitResult => {
+          stopSubmit()
+          setSubmitSucceeded()
+          if (onSubmitSuccess) {
+            onSubmitSuccess(submitResult, dispatch, props)
+          }
+          return submitResult
+        },
+        submitError => {
+          const error = isSubmissionError(submitError)
+            ? submitError.errors
+            : undefined
+          stopSubmit(error)
+          setSubmitFailed(...fields)
+          if (onSubmitFail) {
+            onSubmitFail(error, dispatch, submitError, props)
+          }
+          if (error || onSubmitFail) {
+            // if you've provided an onSubmitFail callback, don't re-throw the error
+            return error
+          } else {
+            throw submitError
+          }
+        }
+      )
+    } else {
+      setSubmitSucceeded()
+      if (onSubmitSuccess) {
+        onSubmitSuccess(result, dispatch, props)
+      }
+    }
+  }
+
+  return result
+}
+
+const handleSubmit = (
+  submit: SubmitFunction,
+  props: Props,
+  valid: boolean,
+  asyncValidate: Function,
+  fields: string[] | List<string>
+) => {
+  const {
+    dispatch,
+    onSubmitFail,
+    setSubmitFailed,
     syncErrors,
     asyncErrors,
     touch,
-    values,
     persistentSubmitErrors
   } = props
 
-  touch(...Array.from(fields)) // mark all fields as touched
+  fields = makeFieldsArray(fields)
+
+  touch(...fields) // mark all fields as touched
 
   if (valid || persistentSubmitErrors) {
-    const doSubmit = () => {
-      let result
-      try {
-        result = submit(values, dispatch, props)
-      } catch (submitError) {
-        const error = isSubmissionError(submitError)
-          ? submitError.errors
-          : undefined
-        stopSubmit(error)
-        setSubmitFailed(...fields)
-        if (onSubmitFail) {
-          onSubmitFail(error, dispatch, submitError, props)
-        }
-        if (error || onSubmitFail) {
-          // if you've provided an onSubmitFail callback, don't re-throw the error
-          return error
-        } else {
-          throw submitError
-        }
-      }
-      if (isPromise(result)) {
-        startSubmit()
-        return result.then(
-          submitResult => {
-            stopSubmit()
-            setSubmitSucceeded()
-            if (onSubmitSuccess) {
-              onSubmitSuccess(submitResult, dispatch, props)
-            }
-            return submitResult
-          },
-          submitError => {
-            const error = isSubmissionError(submitError)
-              ? submitError.errors
-              : undefined
-            stopSubmit(error)
-            setSubmitFailed(...fields)
-            if (onSubmitFail) {
-              onSubmitFail(error, dispatch, submitError, props)
-            }
-            if (error || onSubmitFail) {
-              // if you've provided an onSubmitFail callback, don't re-throw the error
-              return error
-            } else {
-              throw submitError
-            }
-          }
-        )
-      } else {
-        setSubmitSucceeded()
-        if (onSubmitSuccess) {
-          onSubmitSuccess(result, dispatch, props)
-        }
-      }
-      return result
-    }
-
     const asyncValidateResult = asyncValidate && asyncValidate()
     if (asyncValidateResult) {
       return asyncValidateResult
@@ -103,7 +138,7 @@ const handleSubmit = (
           if (asyncErrors) {
             throw asyncErrors
           }
-          return doSubmit()
+          return executeSubmit(submit, fields, props)
         })
         .catch(asyncErrors => {
           setSubmitFailed(...fields)
@@ -113,7 +148,7 @@ const handleSubmit = (
           return Promise.reject(asyncErrors)
         })
     } else {
-      return doSubmit()
+      return executeSubmit(submit, fields, props)
     }
   } else {
     setSubmitFailed(...fields)

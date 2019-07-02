@@ -37,9 +37,9 @@ be as simple as `'firstName'` or as complicated as
 Numeric field names, e.g. `name="42"` or `name="foo.5.email"`, are not supported, as they can
 be confused for array indexes.
 
-#### `component : Component|Function|String` [required]
+#### `component : Component<FieldProps>|String` [required]
 
-A `Component`, stateless function, or string corresponding to a default JSX element.
+A `Component` (stateful class or stateless function), or string corresponding to a default JSX element.
 See the [Usage](#usage) section below for details.
 
 #### `format : (value, name) => formattedValue` [optional]
@@ -126,12 +126,33 @@ localized date formats into `Date`s.
 `parse` is called with the field `value` and `name` as arguments and should return the new
 parsed value to be stored in the Redux store.
 
+#### `type : string` [optional]
+
+Used to determine the exact shape of the `input` prop passed through to the component provided to
+`component` prop, as detailed below:
+
+- if `type === 'checkbox'` or `type === 'radio'`, the boolean `checked` field will be passed through
+- if `type === 'select-multi'`, the value will always be an array (i.e. will default to `[]` instead of an empty string)
+- if `type === 'file'`, the value will always be of type `?File` (i.e. will default to `undefined` instead of an empty string)
+
+Use this if either:
+
+1. `component` is a `string` value (i.e. a native HTML element)
+2. `component` requires the `input` prop to follow the special semantics described above
+
+`type` is unusual in that it is passed through to `component`, unlike other props consumed by `Field`.
+
 #### `validate : Array<Function> | (value, allValues, props, name) => error` [optional]
 
 Allows you to provide a field-level validation rule. The function is given the fields current value, all other form values, the props passed to the form, and the name of field currently being validated. If the field is valid it should return `undefined`. If the field is invalid it should return an error (usually, but not necessarily, a `String`). Note: if the validate prop changes the field will be re-registered.
 Note: If an array of functions is given, the validation chain is stopped whenever a function return an error and the next validation will not be called.
 
-#### `warn : Array<Function> | (value, allValues, props) => warning` [optional]
+#### `value : string` [optional]
+
+When `type === radio`, this value is compared with the current field value to determine the value of `checked` in the `input` prop passed to `component`.
+Otherwise, this prop is ignored.
+
+#### `warn : Array<Function> | (value, allValues, props) => warning` [optional]
 
 Allows you to provide a field-level warning rule. The function is given the fields current value, all other form values, and the props passed to the form. If the field does not need a warning it should return `undefined`. If the field needs a warning it should return the warning (usually, but not necessarily, a `String`). Note: if the warn prop changes the field will be re-registered.
 Note: If an array of functions is given, the warn chain is stopped whenever a function return an error and the next warning will not be called.
@@ -153,7 +174,7 @@ The `component` prop will be passed to
 [`React.createElement()`](http://facebook.github.io/react/docs/top-level-api.html#react.createelement),
 which accepts one of three possible things:
 
-### 1. A component
+### 1. A normal component
 
 This can be any component class that you have written or have imported from a third party library.
 
